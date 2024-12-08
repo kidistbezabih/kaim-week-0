@@ -15,6 +15,8 @@ if not os.path.exists(data_dir):
 # List all CSV files in the data directory
 data_files = [f for f in os.listdir(data_dir) if f.endswith('.csv')]
 
+# Data Quality Check
+
 # Check if there are any CSV files
 if not data_files:
     raise FileNotFoundError("No CSV files found in the data/ directory.")
@@ -65,3 +67,33 @@ rows_with_issues = df[
 st.write(f"Number of rows with issues: {len(rows_with_issues)}")
 if len(rows_with_issues) > 0:
     st.write(rows_with_issues.head())
+
+
+# Time Series Analysis
+
+# Parse the Timestamp column
+st.subheader("Time Series Analysis")
+if 'Timestamp' in df.columns:
+    df['Timestamp'] = pd.to_datetime(df['Timestamp'], errors='coerce')
+    df = df.dropna(subset=['Timestamp'])  # Remove rows with invalid timestamps
+    df.set_index('Timestamp', inplace=True)  # Set Timestamp as index for easier plotting
+    
+    # Extract time-based features
+    df['Month'] = df.index.month
+    df['Hour'] = df.index.hour
+
+    # Plot GHI, DNI, DHI, and Tamb over time
+    st.write("**Line Chart of Solar Irradiance and Temperature Over Time**")
+    st.line_chart(df[['GHI', 'DNI', 'DHI', 'Tamb']])
+    
+    # Group by month and plot aggregated data
+    st.write("**Monthly Averages of Solar Irradiance and Temperature**")
+    monthly_data = df[['GHI', 'DNI', 'DHI', 'Tamb']].groupby(df['Month']).mean()
+    st.bar_chart(monthly_data)
+
+    # Group by hour and plot aggregated data
+    st.write("**Hourly Averages of Solar Irradiance and Temperature**")
+    hourly_data = df[['GHI', 'DNI', 'DHI', 'Tamb']].groupby(df['Hour']).mean()
+    st.line_chart(hourly_data)
+else:
+    st.warning("The dataset does not contain a 'Timestamp' column for time series analysis.")

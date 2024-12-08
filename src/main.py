@@ -26,3 +26,42 @@ df = pd.read_csv(dataset_path)
 # Display summary statistics
 st.title("Summary Statistics")
 st.write(df.describe())
+
+
+# Check for missing values
+st.subheader("Missing Values Check")
+missing_values = df.isnull().sum()
+missing_percentage = (missing_values / len(df)) * 100
+st.write("Missing Values Summary:")
+st.write(pd.DataFrame({"Missing Count": missing_values, "Percentage": missing_percentage}))
+
+# Identify negative values in specific columns
+st.subheader("Negative Value Check")
+columns_to_check_positive = ['GHI', 'DNI', 'DHI', 'ModA', 'ModB', 'WS', 'WSgust']
+negative_values = {col: (df[col] < 0).sum() for col in columns_to_check_positive}
+st.write("Negative Values Summary:")
+st.write(pd.DataFrame(negative_values.items(), columns=["Column", "Negative Count"]))
+
+# Outlier Detection using IQR method
+st.subheader("Outlier Detection")
+def detect_outliers(column):
+    Q1 = df[column].quantile(0.25)  # First quartile
+    Q3 = df[column].quantile(0.75)  # Third quartile
+    IQR = Q3 - Q1  # Interquartile range
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    return df[(df[column] < lower_bound) | (df[column] > upper_bound)].shape[0]
+
+outlier_summary = {col: detect_outliers(col) for col in ['GHI', 'DNI', 'DHI', 'ModA', 'ModB', 'WS', 'WSgust']}
+st.write("Outlier Summary:")
+st.write(pd.DataFrame(outlier_summary.items(), columns=["Column", "Outlier Count"]))
+
+# Optional: Highlight rows with potential data quality issues
+st.subheader("Rows with Issues")
+rows_with_issues = df[
+    (df[columns_to_check_positive] < 0).any(axis=1) |  # Any negative values
+    ((df['GHI'] > 1200) | (df['DNI'] > 1200) | (df['DHI'] > 1200))  # Extreme high values for irradiance
+]
+st.write(f"Number of rows with issues: {len(rows_with_issues)}")
+if len(rows_with_issues) > 0:
+    st.write(rows_with_issues.head())

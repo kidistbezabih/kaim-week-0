@@ -4,7 +4,7 @@ __pycache__/
 
 # Ignore environment files
 .env
-venv/
+.venv/
 
 # Ignore data files
 data/*.csv

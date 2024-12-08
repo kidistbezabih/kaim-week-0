@@ -51,5 +51,4 @@ Follow these steps to run the dashboard locally:
 
 Clone the project repository to your local environment:
 
-``` git clone https://github.com/kidistbezabih/kaim-week-0
-```
+``` git clone https://github.com/kidistbezabih/kaim-week-0```

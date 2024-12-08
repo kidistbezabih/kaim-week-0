@@ -97,3 +97,33 @@ if 'Timestamp' in df.columns:
     st.line_chart(hourly_data)
 else:
     st.warning("The dataset does not contain a 'Timestamp' column for time series analysis.")
+
+
+# Evaluate the impact of cleaning
+# Evaluate the impact of cleaning on sensor readings
+st.subheader("Impact of Cleaning on Sensor Readings")
+if 'Cleaning' in df.columns and 'ModA' in df.columns and 'ModB' in df.columns:
+    # Group data by the 'Cleaning' column
+    cleaned_data = df[df['Cleaning'] == 1]
+    not_cleaned_data = df[df['Cleaning'] == 0]
+
+    # Calculate mean sensor readings for both groups
+    cleaning_impact = df.groupby('Cleaning')[['ModA', 'ModB']].mean()
+    
+    # Display the comparison table
+    st.write("**Average Sensor Readings with and without Cleaning:**")
+    st.dataframe(cleaning_impact)
+
+    # Visualize the comparison using bar charts
+    st.write("**Bar Chart Comparing Average Sensor Readings**")
+    st.bar_chart(cleaning_impact)
+
+    # Analyze sensor readings over time based on cleaning status
+    st.write("**Time Series Analysis of Sensor Readings (ModA and ModB)**")
+    st.line_chart(cleaned_data[['ModA', 'ModB']])
+    st.caption("Sensor readings when cleaning occurred")
+
+    st.line_chart(not_cleaned_data[['ModA', 'ModB']])
+    st.caption("Sensor readings when no cleaning occurred")
+else:
+    st.warning("Required columns ('Cleaning', 'ModA', 'ModB') are missing from the dataset.")
